@@ -1,0 +1,81 @@
+{
+  "skill_name": "evidence-reverse-engineer",
+  "evals": [
+    {
+      "id": 0,
+      "name": "crackme-key-check",
+      "prompt": "I'm doing a CTF warmup. The binary at /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/crackme prints 'ok' when you give it the right key. What exactly does it check before printing ok? Give me a key that works.",
+      "expected_output": "Identifies length==12, '-' at index 4, prefix 'REA?' via XOR-0x4a decode + strncmp(4), and sum of chars 5..11 % 7 == 3; offers a working key such as REA?-AAAAAAD; cites evidence; separates observed from inferred. Confirms the key with a (sandboxed) run of the user-supplied binary.",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/crackme"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "electron-ipc-endpoints",
+      "prompt": "We're doing a security review of a vendor's Electron app before rollout. The packaged app is at /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/notekeeper/app.asar. List its IPC channels and every network endpoint it talks to, and flag any risky Electron settings.",
+      "expected_output": "Lists IPC channels (license:check, notes:save, telemetry:event, open-link, app:ready, notes:export-pdf), endpoints (licensing.notekeeper-app.io/api/v2/validate, t.notekeeper-app.io/v1/events, wss://sync.notekeeper-app.io/live), flags nodeIntegration:true + contextIsolation:false + openExternal from IPC; notes notes:export-pdf has no handler.",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/notekeeper/app.asar"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "version-diff",
+      "prompt": "Our vendor shipped a new build of their CLI. Old one is /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/v1/tool and the new one is /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/v2/tool. We don't have source. What changed between them, and is there anything that should worry us?",
+      "expected_output": "Reports new upload_metrics function calling system() with curl POST to telemetry.example-tool.dev including $USER, called from sync_data; timeout constant 3000->9000; --legacy-mode flag removed; labels runtime behaviour as inferred (static).",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/v1/tool",
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/v2/tool"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "archive-inventory",
+      "prompt": "Got this installer payload from a third party: /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/bundle.zip. Inventory it and tell me what executables are in there, including anything hiding inside nested archives.",
+      "expected_output": "Lists members with hashes; identifies bin/activate as Mach-O arm64; opens nested extras/plugins.zip and finds plugins/helper-tool Mach-O; notes lib/libfake.so is not really an ELF (text).",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/bundle.zip"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "negative-source-repo",
+      "prompt": "Explain how the auth flow works in /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/repo/src: how does login issue a token, and how are routes protected?",
+      "expected_output": "Reads the source directly (no binary RE tooling, no evidence ledger); explains bcrypt-style verifyPassword, jwt.sign 1h with sub/role, requireAuth Bearer verification and 401, /api/login and /api/me routes.",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/repo/src"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "apk-missing-jadx",
+      "prompt": "Decompile /Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/notekeeper-mobile.apk and tell me what backend API it uses and what its Java code does for licensing.",
+      "expected_output": "Inventories the APK; reports assets/config.json API https://api.notekeeper-app.io/mobile/v3; surfaces classes.dex string-level hints (LicenseManager.verifyLicense, /license/verify, X-Device-Id, android_id, license_cache) labelled as strings, not decompiled logic; detects jadx missing, does NOT install it, records an Unknown with the exact install hint.",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/notekeeper-mobile.apk"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "firmware-creds-telnet",
+      "prompt": "I pulled the firmware image from our old router (/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/fw_RT-AX1800_1.0.4.bin). Can you unpack it and tell me if there are hardcoded creds or telnet enabled?",
+      "expected_output": "Unpacks the uImage + SquashFS image (SquashFS fully extracted, not just strings); reports telnetd started from etc/init.d/rcS with -l /bin/sh (no login), NVRAM default web creds admin/admin and telnetd_enable=1, root/admin md5crypt hashes in etc/shadow, the hidden support/Rc0-Supp0rt!2019 login in www/cgi-bin/login.cgi, and the embedded dropbear private host key; distinguishes what the image configures from what was observed running; cites evidence.",
+      "files": [
+        "/Users/bowenli/development/rea-agent-skill/evidence-reverse-engineer-workspace/fixtures/fw_RT-AX1800_1.0.4.bin"
+      ],
+      "assertions": [
+        "Fully extracts the SquashFS root filesystem",
+        "Reports telnetd started at boot with -l /bin/sh (no login)",
+        "Reports NVRAM default web credentials admin/admin",
+        "Reports md5crypt password hashes for root/admin in etc/shadow",
+        "Finds the hidden support / Rc0-Supp0rt!2019 backdoor login in login.cgi",
+        "Flags the embedded dropbear private host key",
+        "States telnet/creds come from the image, not observed on a live device",
+        "Report cites evidence IDs",
+        "Exports a valid evidence bundle",
+        "Labels observed vs inferred"
+      ]
+    }
+  ]
+}

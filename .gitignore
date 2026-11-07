@@ -1,0 +1,10 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Investigation working directories created at runtime
+re-work/
+*/doctor.json
+
+# macOS
+.DS_Store

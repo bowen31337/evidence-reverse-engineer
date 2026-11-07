@@ -1,0 +1,2 @@
+{ "name": "notekeeper", "productName": "NoteKeeper", "version": "2.4.1", "main": "main.js",
+  "dependencies": { "electron-store": "^8.1.0", "axios": "^1.6.0" } }
