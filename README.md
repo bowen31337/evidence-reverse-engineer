@@ -63,3 +63,7 @@ Analyze only targets you own or are authorized to examine — your own software,
 CTF challenges, malware triage, interoperability and security research. Requests
 whose goal is to bypass licensing, DRM, or anti-cheat in software you don't own
 are declined.
+
+## License
+
+[MIT](LICENSE) © 2026 Bowen Li
